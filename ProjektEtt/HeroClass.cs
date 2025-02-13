@@ -1,17 +1,20 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-//-----------------------------------------Hero----------------------------------------------
-public class Hero{
+
+public class Character{}
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+public class Hero:Character{
     public string name;
     public string role;
     public int maxHp;
     public int hp;
     public Weapon weapon;
-    List<Potion> bag = new();
+    public List<Potion> bag = new();
     public static List<Hero> heroList=new();
     public bool visibility=true;
+    public int initiative;
 
-    void UseItem(){
+    public void UseItem(){
         string resp;
         int respInt=0;
         bool check1=false;
@@ -31,6 +34,7 @@ public class Hero{
         }
         if(bag[respInt].type=="Healing"){
             int healed= bag[respInt].Use();
+            if(hp+healed>maxHp) healed=maxHp-hp;
             hp+=healed;
             Console.WriteLine("You have been healed for "+healed+" health");
         }
@@ -39,34 +43,36 @@ public class Hero{
             mana+=manaAmount;
             Console.WriteLine("Yor mana was raised with "+manaAmount+" mana"); */
         }
+        Console.WriteLine(bag[respInt].name+" was consumed");
+        bag.Remove(bag[respInt]);
         Console.ReadLine();
         Console.Clear();
     }
 
-    void Attack(){
+    public void Attack(List<Enemy> enemyList){
         string resp;
         bool check=false;
         int respInt=0;
         while(check==false){
             Console.WriteLine("Which enemy would you like to attack?");
-            for (int i = 0; i < Enemy.enemyList.Count; i++){
-                Console.WriteLine(i+") "+Enemy.enemyList[i].name);
+            for (int i = 0; i < enemyList.Count; i++){
+                Console.WriteLine(i+") "+enemyList[i].name);
             }
             resp=Console.ReadLine();
             check=int.TryParse(resp, out respInt);
         }
         int damage=weapon.Attack();
         Enemy.enemyList[respInt].hp-=damage;
-        Console.WriteLine("You dealt "+damage+" damage to "+Enemy.enemyList[respInt].name);
+        Console.WriteLine("You dealt "+damage+" damage to "+enemyList[respInt].name);
         Console.ReadLine();
         Console.Clear();
     }
 
-    void ShowClass(){
+    public void ShowClass(){
         Console.WriteLine("Name: "+name);
         Console.WriteLine("Class: "+role);
         Console.WriteLine("Health: "+hp);
-        Console.WriteLine("Weapon: "+weapon);
+        Console.WriteLine("Weapon: "+weapon.name);
         if(role=="Assasin"){
             switch(visibility){
                 case true:
@@ -77,13 +83,11 @@ public class Hero{
                 break;
             }
         }
-        //Sarahs fötter ser ut som drakklor
         Console.WriteLine();
         Console.WriteLine("Inventory");
         for (int i = 0; i < bag.Count; i++){
             Console.WriteLine("     "+bag[i].name);
         }
-        Console.ReadLine();
     }
 }
 
@@ -119,13 +123,14 @@ class Warrior:Hero{
 
 //-----------------------------------------Enemy----------------------------------------------
 
-public class Enemy{
+public class Enemy:Character{
     public int hp;
-    int maxHp;
+    public int maxHp;
     public string name;
-    int dmgDie;
-    int dmgMod;
+    public int dmgDie;
+    public int dmgMod;
     public static List<Enemy> enemyList=new();
+    public int initiative;
 
     void Attack(){
         Random gen=new();
@@ -133,12 +138,22 @@ public class Enemy{
     }
 }
 
-class Goblin:Enemy{
-    public bool visibility;
-    bool Hide(){
-        Random gen=new();
-        if(gen.Next(1,21)>12)
-        return true;
-        return false;
+public class Goblin:Enemy{
+    public Goblin(){
+        name="Goblin";
+        hp=30;
+        maxHp=30;
+        dmgDie=6;
+        dmgMod=5;
+    }
+}
+
+public class Orc:Enemy{
+    public Orc(){
+        name="Orc";
+        hp=50;
+        maxHp=50;
+        dmgDie=12;
+        dmgMod=9;
     }
 }

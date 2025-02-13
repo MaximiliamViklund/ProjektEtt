@@ -28,3 +28,9 @@ public class PotionLvl1:Potion{
         strengthMod=3;
     }
 }
+public class HPotionLvl1:PotionLvl1{
+    public HPotionLvl1(){
+        name="Healing Potion";
+        type="Healing";
+    }
+}

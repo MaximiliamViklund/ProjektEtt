@@ -2,49 +2,56 @@ using System.Reflection.Metadata.Ecma335;
 
 /////////////////////////////////////////ITEM/////////////////////////////////////////
 public class Item{
-    public string name;
-    public int price;
+    public string Name { get; set; }
+    public int Price { get; set; }
+    public virtual void ShowStats(){}
 }
 /////////////////////////////////////////WEAPON/////////////////////////////////////////
 public class Weapon:Item{
-    public int dmgDie;
-    public int dmgMod;
+    public int DmgDie { get; set; }
+    public int DmgMod { get; set; }
 
     public int Attack(){
         Random gen=new();
-        return gen.Next(1,dmgDie+1)+dmgMod;
+        return gen.Next(1,DmgDie+1)+DmgMod;
     }
 
-    public void ShowStats(){
-        Console.WriteLine("Damage Die: "+dmgDie);
-        Console.WriteLine("Damage Modifier: "+dmgMod);
-        Console.WriteLine("Price: "+price);
+    public override void ShowStats(){
+        Console.WriteLine("     Damage Die: "+DmgDie);
+        Console.WriteLine("     Damage Modifier: "+DmgMod);
+        Console.WriteLine("     Price: "+Price);
     }
 }
 
 /////////////////////////////////////////POTION/////////////////////////////////////////
 public class Potion:Item{
-    public string type;
-    public int strength;
-    public int strengthMod;
+    public string Type { get; set; }
+    public int Strength { get; set; }
+    public int StrengthMod { get; set; }
 
     ////////////////////////////USE////////////////////////////////////
     public int Use(){
         Random gen=new();
-        return gen.Next(1,strength+1)+strengthMod;
+        return gen.Next(1,Strength+1)+StrengthMod;
+    }
+
+    public override void ShowStats(){
+        Console.WriteLine("Strength: "+Strength);
+        Console.WriteLine("Strength Modifier: "+StrengthMod);
+        Console.WriteLine("Price: "+Price);
     }
 }
 
 ///LVL 1 POTIONS///
 public class PotionLvl1:Potion{
     public PotionLvl1(){
-        strength=6;
-        strengthMod=3;
+        Strength=6;
+        StrengthMod=3;
     }
 }
 public class HPotionLvl1:PotionLvl1{
     public HPotionLvl1(){
-        name="Healing Potion";
-        type="Healing";
+        Name="Healing Potion";
+        Type="Healing";
     }
 }

@@ -3,17 +3,18 @@ using System.Runtime.CompilerServices;
 
 //////////////////////////////////////////////////////////CREATURE////////////////////////////////////////////////////////////
 public class Creature{
-    public int initiative;
+    public string Name { get; set; }
+    public int Initiative { get; set; }
+    public virtual void ShowClass(){}
 }
 ////////////////////////////////////////////////////////////HERO////////////////////////////////////////////////////////////
 public class Hero: Creature{
-    public string name;
-    public string role;
-    public int maxHp;
-    public int hp;
-    public Weapon weapon;
-    public List<Potion> bag = new();
-    public bool visibility=true;
+    public string Role { get; set; }
+    public int MaxHp { get; set; }
+    public int Hp { get; set; }
+    public Weapon Weapon { get; set; }
+    public List<Potion> Bag = new();
+    public bool Visibility { get; set; }
 
     ////////////////////////////////////////////////////////USEITEM////////////////////////////////////////////////////////
     public static void UseItem(Hero hero){
@@ -22,8 +23,8 @@ public class Hero: Creature{
         bool check1=false;
         while(check1==false){
             Console.WriteLine("Which potion do you want to use?");
-            for (int i = 0; i < hero.bag.Count; i++){
-                Console.WriteLine(i+") "+hero.bag[i].name);
+            for (int i = 0; i < hero.Bag.Count; i++){
+                Console.WriteLine(i+") "+hero.Bag[i].Name);
             }
             resp=Console.ReadLine();
 
@@ -34,19 +35,19 @@ public class Hero: Creature{
             }
             Console.Clear();
         }
-        if(hero.bag[respInt].type=="Healing"){
-            int healed= hero.bag[respInt].Use();
-            if(hero.hp+healed>hero.maxHp) healed=hero.maxHp-hero.hp;
-            hero.hp+=healed;
+        if(hero.Bag[respInt].Type=="Healing"){
+            int healed= hero.Bag[respInt].Use();
+            if(hero.Hp+healed>hero.MaxHp) healed=hero.MaxHp-hero.Hp;
+            hero.Hp+=healed;
             Console.WriteLine("You have been healed for "+healed+" health");
         }
-        if(hero.bag[respInt].type=="Mana"){
+        if(hero.Bag[respInt].Type=="Mana"){
             /* int manaAmount=bag[respInt].Use();
             hero.mana+=manaAmount;
             Console.WriteLine("Your mana was raised with "+manaAmount+" mana"); */
         }
-        Console.WriteLine(hero.bag[respInt].name+" was consumed");
-        hero.bag.Remove(hero.bag[respInt]);
+        Console.WriteLine(hero.Bag[respInt].Name+" was consumed");
+        hero.Bag.Remove(hero.Bag[respInt]);
         Console.ReadLine();
         Console.Clear();
     }
@@ -62,7 +63,7 @@ public class Hero: Creature{
         while(check==false){ //Frågar spelaren vilken fiende hen vill attackera
             Console.WriteLine("Which enemy would you like to attack?");
             foreach(Enemy enemy in enemyList){
-                Console.WriteLine(enemyList.IndexOf(enemy)+") "+enemy.name);
+                Console.WriteLine(enemyList.IndexOf(enemy)+") "+enemy.Name);
                 enemy.ShowStats();
                 Console.WriteLine();
             }
@@ -75,25 +76,25 @@ public class Hero: Creature{
             check=int.TryParse(resp, out respInt);
         }
         
-        int damage=weapon.Attack();
-        enemyList[respInt].hp-=damage;
-        Console.WriteLine("You dealt "+damage+" damage to "+enemyList[respInt].name);
-        if(enemyList[respInt].hp<=0){
-            Console.WriteLine(enemyList[respInt].name+" has been defeated");
+        int damage=Weapon.Attack();
+        enemyList[respInt].Hp-=damage;
+        Console.WriteLine("You dealt "+damage+" damage to "+enemyList[respInt].Name);
+        if(enemyList[respInt].Hp<=0){
+            Console.WriteLine(enemyList[respInt].Name+" has been defeated");
             enemyList.Remove(enemyList[respInt]);
         }
-        else Console.WriteLine(enemyList[respInt].name+" has "+enemyList[respInt].hp+" health left");
+        else Console.WriteLine(enemyList[respInt].Name+" has "+enemyList[respInt].Hp+" health left");
         Console.ReadLine();
         Console.Clear();
     }
 
-    public void ShowClass(){ //Skriver ut data för vald Hero
-        Console.WriteLine("Name: "+name);
-        Console.WriteLine("Class: "+role);
-        Console.WriteLine("Health: "+hp);
-        Console.WriteLine("Weapon: "+weapon.name);
-        if(role=="Assasin"){
-            switch(visibility){
+    public override void ShowClass(){ //Skriver ut data för vald Hero
+        Console.WriteLine("Name: "+Name);
+        Console.WriteLine("Class: "+Role);
+        Console.WriteLine("Health: "+Hp);
+        Console.WriteLine("Weapon: "+Weapon.Name);
+        if(Role=="Assasin"){
+            switch(Visibility){
                 case true:
                     Console.WriteLine("Is Visible");
                 break;
@@ -104,8 +105,8 @@ public class Hero: Creature{
         }
         Console.WriteLine();
         Console.WriteLine("Inventory");
-        for (int i = 0; i < bag.Count; i++){
-            Console.WriteLine("     "+bag[i].name);
+        for (int i = 0; i < Bag.Count; i++){
+            Console.WriteLine("     "+Bag[i].Name);
         }
     }
 }
@@ -113,9 +114,9 @@ public class Hero: Creature{
 //////////////////////////////////////////////ASSASSIN////////////////////////////////////////////////////////////
 class Assassin:Hero{
     public Assassin(){ //Bestämmer variabler för Assasin
-        hp=35;
-        maxHp=35;
-        role="Assasin";
+        Hp=35;
+        MaxHp=35;
+        Role="Assasin";
     }
     bool Hide(){
         Random gen=new();
@@ -127,13 +128,14 @@ class Assassin:Hero{
 
 //////////////////////////////////////////////WARRIOR////////////////////////////////////////////////////////////
 class Warrior:Hero{ //Bestämmer variabler för Warrior
-    public bool rage;
-    public static int rageDmg=5;
+    public bool Rage { get; set; }
+    public static int RageDmg { get; set; }
 
     public Warrior(){
-        hp=50;
-        maxHp=50;
-        role="Warrior";
+        Hp=50;
+        MaxHp=50;
+        Role="Warrior";
+        RageDmg=5;
     }
 }
 
@@ -146,56 +148,55 @@ class Warrior:Hero{ //Bestämmer variabler för Warrior
 ////////////////////////////////////////////////////////////ENEMY////////////////////////////////////////////////////////////
 
 public class Enemy:Creature{
-    public int hp;
-    public int maxHp;
-    public string name;
-    public int dmgDie;
-    public int dmgMod;
+    public int Hp { get; set; }
+    public int MaxHp { get; set; }
+    public int DmgDie { get; set; }
+    public int DmgMod { get; set; }
 
     //////////////////////////////////////////////ATTACK////////////////////////////////////////////////////////////
     public void Attack(List<Hero> heroList){
         Random gen=new();
 
-        int damage=gen.Next(1,dmgDie+1)+dmgMod;
+        int damage=gen.Next(1,DmgDie+1)+DmgMod;
         Hero hero=heroList[gen.Next(0,heroList.Count)];
 
-        hero.hp-=damage;
-        Console.WriteLine(name+" dealt "+damage+" damage to "+hero.name);
+        hero.Hp-=damage;
+        Console.WriteLine(Name+" dealt "+damage+" damage to "+hero.Name);
 
-        if(hero.hp<=0){
-            Console.WriteLine(hero.name+" has been defeated");
+        if(hero.Hp<=0){
+            Console.WriteLine(hero.Name+" has been defeated");
             heroList.Remove(hero);
         }
-        else Console.WriteLine(hero.name+" has "+hero.hp+" health left");
+        else Console.WriteLine(hero.Name+" has "+hero.Hp+" health left");
 
         Console.ReadLine();
         Console.Clear();
     }
 
-    public void ShowStats(){
-        Console.WriteLine("Health: "+hp);
-        Console.WriteLine("Damage Die: "+dmgDie);
-        Console.WriteLine("Damage Modifier: "+dmgMod);
+    public override void ShowClass(){
+        Console.WriteLine("Health: "+Hp);
+        Console.WriteLine("Damage Die: "+DmgDie);
+        Console.WriteLine("Damage Modifier: "+DmgMod);
     }
 }
 
 //////////////////////////////////////////////GOBLIN////////////////////////////////////////////////////////////
 public class Goblin:Enemy{
     public Goblin(){
-        name="Goblin";
-        hp=30;
-        maxHp=30;
-        dmgDie=6;
-        dmgMod=5;
+        Name="Goblin";
+        Hp=30;
+        MaxHp=30;
+        DmgDie=6;
+        DmgMod=5;
     }
 }
 //////////////////////////////////////////////ORC////////////////////////////////////////////////////////////
 public class Orc:Enemy{
     public Orc(){
-        name="Orc";
-        hp=50;
-        maxHp=50;
-        dmgDie=12;
-        dmgMod=9;
+        Name="Orc";
+        Hp=50;
+        MaxHp=50;
+        DmgDie=12;
+        DmgMod=9;
     }
 }

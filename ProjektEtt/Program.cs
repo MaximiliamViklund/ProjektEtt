@@ -218,6 +218,8 @@ while(check3){
                 }
             }
             foreach(Creature creature in initiativeList){
+                heroCount=initiativeList.OfType<Hero>().Count();
+                enemyCount=initiativeList.OfType<Enemy>().Count();
                 if(creature.Hp>0&&heroCount>0&&enemyCount>0){ //Kollar så att det finns enemies och heroes kvar i listan
                     Console.WriteLine("Combat");
                     Console.WriteLine();
@@ -269,8 +271,10 @@ while(check3){
                     }
                 }
             }
+            
             heroCount=initiativeList.OfType<Hero>().Count();
             enemyCount=initiativeList.OfType<Enemy>().Count();
+
             if(heroCount==0){
                 Console.WriteLine("You lost");
                 checkCombat=false;

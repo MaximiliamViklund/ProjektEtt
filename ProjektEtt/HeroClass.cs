@@ -1,17 +1,19 @@
 using System.ComponentModel;
+using System.Reflection.PortableExecutable;
 using System.Runtime.CompilerServices;
+using System.Linq;
 
 //////////////////////////////////////////////////////////CREATURE////////////////////////////////////////////////////////////
 public class Creature{
     public string Name { get; set; }
     public int Initiative { get; set; }
+    public int Hp { get; set; }
+    public int MaxHp { get; set; }
     public virtual void ShowClass(){}
 }
 ////////////////////////////////////////////////////////////HERO////////////////////////////////////////////////////////////
 public class Hero: Creature{
     public string Role { get; set; }
-    public int MaxHp { get; set; }
-    public int Hp { get; set; }
     public Weapon Weapon { get; set; }
     public List<Potion> Bag = new();
     public bool Visibility { get; set; }
@@ -54,38 +56,53 @@ public class Hero: Creature{
 
     ////////////////////////////////////////////////////////ATTACK////////////////////////////////////////////////////////
 
-    public void Attack(List<Enemy> enemyList){
-        string resp;
-        bool check=false;
-        int respInt=0;
+    public void Attack(List<Creature> initiativeList){
+        if(initiativeList.OfType<Enemy>().Count()>0){
+            string resp;
+            bool check=false;
+            int respInt=0;
+            List<Enemy> thisEnemyList=new();
 
 
-        while(check==false){ //Frågar spelaren vilken fiende hen vill attackera
-            Console.WriteLine("Which enemy would you like to attack?");
-            foreach(Enemy enemy in enemyList){
-                Console.WriteLine(enemyList.IndexOf(enemy)+") "+enemy.Name);
-                enemy.ShowStats();
-                Console.WriteLine();
+            while(check==false){ //Frågar spelaren vilken fiende hen vill attackera
+                Console.WriteLine("Which enemy would you like to attack?");
+                foreach(Creature enemy in initiativeList){
+                    if(enemy is Enemy&&enemy.Hp>0){
+                        if(thisEnemyList.Count==0){
+                            Console.WriteLine("Enemies:");
+                        }
+                        thisEnemyList.Add((Enemy)enemy);
+                        Console.WriteLine(thisEnemyList.IndexOf((Enemy)enemy)+") "+enemy.Name);
+                        enemy.ShowClass();
+                        Console.WriteLine();
+                    }
+                }
+                resp=Console.ReadLine();
+                bool check1=int.TryParse(resp, out respInt);
+
+                if(check1==false || respInt<0 || respInt>=thisEnemyList.Count){
+                    Console.WriteLine("Please enter a valid answer");
+                    Console.ReadLine();
+                }
+                else check=true;
             }
-            /* for (int i = 0; i < enemyList.Count; i++){
-                Console.WriteLine(i+") "+enemyList[i].name);
-                enemyList[i].ShowStats();
-                Console.WriteLine();
-            } */
-            resp=Console.ReadLine();
-            check=int.TryParse(resp, out respInt);
+            
+            int damage=Weapon.Attack();
+            thisEnemyList[respInt].Hp-=damage;
+            Console.WriteLine(Name+" dealt "+damage+" damage to "+thisEnemyList[respInt].Name);
+            if(thisEnemyList[respInt].Hp<=0){
+                Console.WriteLine(thisEnemyList[respInt].Name+" has been defeated");
+            }
+            else Console.WriteLine(thisEnemyList[respInt].Name+" has "+thisEnemyList[respInt].Hp+" health left");
+            Console.ReadLine();
+            Console.Clear();
         }
-        
-        int damage=Weapon.Attack();
-        enemyList[respInt].Hp-=damage;
-        Console.WriteLine("You dealt "+damage+" damage to "+enemyList[respInt].Name);
-        if(enemyList[respInt].Hp<=0){
-            Console.WriteLine(enemyList[respInt].Name+" has been defeated");
-            enemyList.Remove(enemyList[respInt]);
+        else{
+            Console.WriteLine("There are no enemies left to attack");
+            Console.ReadLine();
+            Console.Clear();
+            return;
         }
-        else Console.WriteLine(enemyList[respInt].Name+" has "+enemyList[respInt].Hp+" health left");
-        Console.ReadLine();
-        Console.Clear();
     }
 
     public override void ShowClass(){ //Skriver ut data för vald Hero
@@ -148,8 +165,6 @@ class Warrior:Hero{ //Bestämmer variabler för Warrior
 ////////////////////////////////////////////////////////////ENEMY////////////////////////////////////////////////////////////
 
 public class Enemy:Creature{
-    public int Hp { get; set; }
-    public int MaxHp { get; set; }
     public int DmgDie { get; set; }
     public int DmgMod { get; set; }
 
@@ -165,7 +180,6 @@ public class Enemy:Creature{
 
         if(hero.Hp<=0){
             Console.WriteLine(hero.Name+" has been defeated");
-            heroList.Remove(hero);
         }
         else Console.WriteLine(hero.Name+" has "+hero.Hp+" health left");
 

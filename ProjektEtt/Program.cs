@@ -3,6 +3,7 @@
 
 using System.ComponentModel.Design;
 using System.Diagnostics;
+using System.Linq;
 List<Hero> availableHeroes=new();
 List<Hero> yourTeam=new();      //Ändra namn till "yourTeam"
 List<Enemy> enemyList=new();
@@ -13,6 +14,7 @@ List<Enemy> enemyList=new();
 
 
 ///WEAPONS///
+//Skapar nya vapen som sedan används i instanser av Hero
 Weapon GreatSword=new(){
     Name="Great Sword",
     DmgDie=12,
@@ -27,6 +29,7 @@ Weapon Knife=new(){
 
 
 ///POTIONS///
+//Skapar nya potions som sedan används i instanser av Hero
 HPotionLvl1 Healing1=new();
 HPotionLvl1 Healing2=new();
 
@@ -36,7 +39,8 @@ HPotionLvl1 Healing2=new();
 
 List<Item> storeItems=new();
 
-///WEAPONS///   //Skapar nya vapen som läggs till i affären
+///WEAPONS///
+//Skapar nya vapen och lägger till dem i affären
 Weapon GreatAxe=new(){
     Name="Great Axe",
     DmgDie=12,
@@ -82,8 +86,9 @@ availableHeroes.Add(Kurt);
     if(hero.visibility) heroList.Add(hero);
     else heroList.Remove(hero);
 } */
-/////////////////////////////////////////////////////VARIABLES//////////////////////////////////////////////////////////////////
 
+
+/////////////////////////////////////////////////////VARIABLES//////////////////////////////////////////////////////////////////
 
 string resp;
 
@@ -97,6 +102,8 @@ bool checkStore=false;
 bool checkPlay=false;
 
 /////////////////////////////////////////////////START//////////////////////////////////////////////////////////////////////
+
+//Början av spelet - spelarens team väljs
 while(check1){
     Console.WriteLine("Welcome to Another Console Fighting Game");
     Console.WriteLine("Choose your team!");
@@ -117,6 +124,7 @@ while(check1){
     Console.ReadLine();
     Console.Clear();
     
+    //Sätter en cap på max två karaktärer i teamet samt bryter loopen för att fortsätta spelet
     if(yourTeam.Count==2){
         check1=false;
         check3=true;
@@ -149,7 +157,7 @@ while(check3){
         break;
 
         default:
-        Console.WriteLine("Enter a valid answer");
+            Console.WriteLine("Enter a valid answer");
         break;
     }
 
@@ -172,7 +180,7 @@ while(check3){
             enemy.Initiative=gen.Next(1,21);
             initiativeList.Add(enemy);
         }
-        initiativeList.Sort((a,b)=>b.Initiative.CompareTo(a.Initiative));
+        initiativeList.Sort((a,b)=>b.Initiative.CompareTo(a.Initiative));   //Sorterar listan i fallande ordning efter initiativet
 
         foreach(Creature creature in initiativeList){
             if(creature is Hero){
@@ -181,7 +189,7 @@ while(check3){
             }
 
             //Kod under används för att se att sorteringen fungerar men spelaren ska inte ha tillgång till fiendernas initiativ
-            /* if(creature is Enemy){
+            /* else if(creature is Enemy){
                 Enemy enemy=(Enemy)creature;
                 Console.WriteLine(enemy.name+" got "+enemy.initiative);
             } */
@@ -191,50 +199,78 @@ while(check3){
         Console.WriteLine("Combat");
         Console.ReadLine();
         Console.Clear();
+
         bool checkCombat=true;
-        while(checkCombat&&yourTeam.Count>0&&enemyList.Count>0){
-            int heroCount=0;
-            int enemyCount=0;
-            foreach(Creature creature in initiativeList){
-                Console.WriteLine("Combat");
-                Console.WriteLine();
-
-                Console.WriteLine(creature.Name+"s turn");
-                Console.WriteLine();
-                creature.ShowClass();
-                Console.WriteLine();
-
-                if(creature is Hero){
-                    heroCount++;
-                    Hero Hero=(Hero)creature;
-                    Console.WriteLine("What would you like to do?");
-                    Console.WriteLine("a) Attack");
-                    Console.WriteLine("b) Use Potion");
-                    resp=Console.ReadLine().ToLower();
-                    Console.Clear();
-
-                    switch(resp){
-                        case "a":
-                            Hero.Attack(enemyList);
-                        break;
-                        case "b":
-                            Hero.UseItem(Hero);
-                        break;
-                        default:
-                            Console.WriteLine("Enter a valid answer");
-                            Console.ReadLine();
-                            Console.Clear();
-                        break;
-                    }
-                }
-                else if(creature is Enemy){
-                    enemyCount++;
-                    Enemy enemy=(Enemy)creature;
-                    Console.WriteLine(enemy.Name+"s turn");
-                    Console.ReadLine();
-                    enemy.Attack(yourTeam);
+        int heroCount=yourTeam.Count;
+        int enemyCount=enemyList.Count;
+        
+        while(checkCombat&&heroCount>0&&enemyCount>0){
+            heroCount=initiativeList.OfType<Hero>().Count(); //Kollar hur många heroes som är kvar i listan
+            enemyCount=initiativeList.OfType<Enemy>().Count(); //Kollar hur många enemies som är kvar i listan
+            foreach(Hero hero in yourTeam){
+                if(hero.Hp<=0){
+                    initiativeList.Remove(hero);
                 }
             }
+            foreach(Enemy enemy in enemyList){
+                if(enemy.Hp<=0){
+                    initiativeList.Remove(enemy);
+                }
+            }
+            foreach(Creature creature in initiativeList){
+                if(creature.Hp>0&&heroCount>0&&enemyCount>0){ //Kollar så att det finns enemies och heroes kvar i listan
+                    Console.WriteLine("Combat");
+                    Console.WriteLine();
+
+                    Console.WriteLine(creature.Name+"s turn");
+                    Console.WriteLine();
+                    creature.ShowClass();
+                    Console.WriteLine();
+
+                    if(creature is Hero){
+                        heroCount++;
+                        Hero Hero=(Hero)creature;
+
+                        bool checkHero=true;
+                        while(checkHero){
+                            Console.WriteLine("What would you like to do?");
+                            Console.WriteLine("a) Attack");
+                            Console.WriteLine("b) Use Potion");
+                            Console.WriteLine("c) Skip turn");
+                            resp=Console.ReadLine().ToLower();
+                            Console.Clear();
+
+                            switch(resp){
+                                case "a":
+                                    Hero.Attack(initiativeList);
+                                    checkHero=false;
+                                break;
+                                case "b":
+                                    Hero.UseItem(Hero);
+                                    checkHero=false;
+                                break;
+                                case "c":
+                                    checkHero=false;
+                                break;
+                                default:
+                                    Console.WriteLine("Enter a valid answer");
+                                    Console.ReadLine();
+                                    Console.Clear();
+                                break;
+                            }
+                        }
+                    }
+                    else if(creature is Enemy){
+                        enemyCount++;
+                        Enemy enemy=(Enemy)creature;
+                        Console.WriteLine(enemy.Name+"s turn");
+                        Console.ReadLine();
+                        enemy.Attack(yourTeam);
+                    }
+                }
+            }
+            heroCount=initiativeList.OfType<Hero>().Count();
+            enemyCount=initiativeList.OfType<Enemy>().Count();
             if(heroCount==0){
                 Console.WriteLine("You lost");
                 checkCombat=false;
@@ -272,7 +308,7 @@ while(check3){
                 Console.WriteLine();
             }
         }
-        Console.WriteLine((storeItems.Count+1)+") Healing Potion Lvl 1");
+        Console.WriteLine((storeItems.Count)+") Healing Potion Lvl 1");
         Healing1.ShowStats();
         Console.WriteLine();
         Console.WriteLine("a) Leave");
@@ -283,7 +319,7 @@ while(check3){
             Console.Clear();
             checkStore=false;
         }
-        else if(check4&&respInt<=storeItems.Count&&respInt>=0){
+        else if(check4&&respInt<=storeItems.Count-1&&respInt>=0){
             if(gold>=storeItems[respInt].Price){
                 int itemIndex=respInt;
                 Console.WriteLine("Who would you like to buy this for?");
@@ -322,7 +358,7 @@ while(check3){
                 Console.Clear();
             }
         }
-        else if(respInt==storeItems.Count+1){
+        else if(respInt==storeItems.Count){
             if(gold>=5){
                 Console.WriteLine("Who would you like to buy this for?");
                 for (int i = 0; i < yourTeam.Count; i++){
@@ -332,7 +368,7 @@ while(check3){
                 Console.Clear();
                 bool check5=int.TryParse(resp, out respInt); //Kollar om svaret är en siffra
                 if(check5&&respInt<=yourTeam.Count&&respInt>=0){
-                    yourTeam[respInt].Bag[yourTeam[respInt].Bag.Count+1]=new HPotionLvl1(); //Skapar en ny instans av HPotionLvl1 och lägger till den i den valda karaktärens bag
+                    yourTeam[respInt].Bag.Add(new HPotionLvl1()); //Skapar en ny instans av HPotionLvl1 och lägger till den i den valda karaktärens bag
                     Console.WriteLine(Healing1.Name+" was added to "+yourTeam[respInt].Name+"s inventory");
                     gold-=5;
                 }

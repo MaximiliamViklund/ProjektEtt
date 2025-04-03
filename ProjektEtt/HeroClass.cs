@@ -3,6 +3,7 @@ using System.Reflection.PortableExecutable;
 using System.Runtime.CompilerServices;
 using System.Linq;
 
+
 //////////////////////////////////////////////////////////CREATURE////////////////////////////////////////////////////////////
 public class Creature{
     public string Name { get; set; }
@@ -11,6 +12,8 @@ public class Creature{
     public int MaxHp { get; set; }
     public virtual void ShowClass(){}
 }
+
+
 ////////////////////////////////////////////////////////////HERO////////////////////////////////////////////////////////////
 public class Hero: Creature{
     public string Role { get; set; }
@@ -19,18 +22,19 @@ public class Hero: Creature{
     public bool Visibility { get; set; }
 
     ////////////////////////////////////////////////////////USEITEM////////////////////////////////////////////////////////
+    //Lägg tilll fler kommentarer
     public static void UseItem(Hero hero){
         string resp;
         int respInt=0;
         bool check1=false;
         while(check1==false){
             Console.WriteLine("Which potion do you want to use?");
-            for (int i = 0; i < hero.Bag.Count; i++){
+            for (int i = 0; i < hero.Bag.Count; i++){   //Skriver ut lla objekt i bagen med en index
                 Console.WriteLine(i+") "+hero.Bag[i].Name);
             }
             resp=Console.ReadLine();
 
-            check1=int.TryParse(resp, out respInt);
+            check1=int.TryParse(resp, out respInt);     //Kollar om input är en int och sätter den till respInt
             if(check1==false){
                 Console.WriteLine("Please enter a valid answer");
                 Console.ReadLine();
@@ -39,23 +43,22 @@ public class Hero: Creature{
         }
         if(hero.Bag[respInt].Type=="Healing"){
             int healed= hero.Bag[respInt].Use();
-            if(hero.Hp+healed>hero.MaxHp) healed=hero.MaxHp-hero.Hp;
+            if(hero.Hp+healed>hero.MaxHp) healed=hero.MaxHp-hero.Hp;    //Ser till att potionen inte ger mer HP än karaktärens max HP
             hero.Hp+=healed;
             Console.WriteLine("You have been healed for "+healed+" health");
         }
-        if(hero.Bag[respInt].Type=="Mana"){
+        if(hero.Bag[respInt].Type=="Mana"){     //Extra kod för att kunna lägga till en Mana potion i spelet, tanken är att den ska ge mana till en magiker klass
             /* int manaAmount=bag[respInt].Use();
             hero.mana+=manaAmount;
             Console.WriteLine("Your mana was raised with "+manaAmount+" mana"); */
         }
         Console.WriteLine(hero.Bag[respInt].Name+" was consumed");
-        hero.Bag.Remove(hero.Bag[respInt]);
+        hero.Bag.Remove(hero.Bag[respInt]);     //Tar bort potionen från bagen
         Console.ReadLine();
         Console.Clear();
     }
 
     ////////////////////////////////////////////////////////ATTACK////////////////////////////////////////////////////////
-
     public void Attack(List<Creature> initiativeList){
         if(initiativeList.OfType<Enemy>().Count()>0){
             string resp;
@@ -105,6 +108,7 @@ public class Hero: Creature{
         }
     }
 
+    ////////////////////////////////////////////////////////SHOWCLASS////////////////////////////////////////////////////////
     public override void ShowClass(){ //Skriver ut data för vald Hero
         Console.WriteLine("Name: "+Name);
         Console.WriteLine("Class: "+Role);
@@ -157,11 +161,6 @@ class Warrior:Hero{ //Bestämmer variabler för Warrior
 }
 
 
-
-
-
-
-
 ////////////////////////////////////////////////////////////ENEMY////////////////////////////////////////////////////////////
 
 public class Enemy:Creature{
@@ -169,6 +168,7 @@ public class Enemy:Creature{
     public int DmgMod { get; set; }
 
     //////////////////////////////////////////////ATTACK////////////////////////////////////////////////////////////
+    //Funktion som gör att fienden kan attackera en random från initiativ listan Hero
     public void Attack(List<Hero> heroList){
         Random gen=new();
 

@@ -115,7 +115,7 @@ while(check1){
     }
     resp=Console.ReadLine();
     bool check2=int.TryParse(resp, out respInt);
-    if(check2&&respInt<=availableHeroes.Count&&respInt>=0){
+    if(check2&&respInt<=availableHeroes.Count&&respInt>=0){     //Lägger till den valda karaktären i spelarens team och tar bort den från listan med tillgängliga karaktärer
         yourTeam.Add(availableHeroes[respInt]);
         Console.WriteLine(availableHeroes[respInt].Name+" was added to your team!");
         availableHeroes.Remove(availableHeroes[respInt]);
@@ -172,7 +172,7 @@ while(check3){
         Console.ReadLine();
 
         List<Creature> initiativeList=new();
-        foreach(Hero hero in yourTeam){
+        foreach(Hero hero in yourTeam){     //Ger alla karaktärer ett "initiativ" och lägger till dem i en lista
             hero.Initiative=gen.Next(1,21);
             initiativeList.Add(hero);
         }
@@ -291,6 +291,13 @@ while(check3){
 
                 checkCombat=false;
                 checkPlay=false;
+
+                foreach(Enemy enemy in enemyList){
+                    enemy.Hp=enemy.MaxHp;   //Återställer fiendernas HP
+                }
+                foreach(Hero hero in yourTeam){
+                    hero.Hp=hero.MaxHp;   //Återställer spelarnas HP
+                }
             }
         }
     }

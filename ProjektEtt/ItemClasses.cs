@@ -13,10 +13,10 @@ public class Weapon:Item{
 
     public int Attack(){
         Random gen=new();
-        return gen.Next(1,DmgDie+1)+DmgMod;
+        return gen.Next(1,DmgDie+1)+DmgMod; ///Slumpar och returnerar ett värde mellan 1 och vapnets DmgDie samt lägger till DmgMod till värdet
     }
 
-    public override void ShowStats(){
+    public override void ShowStats(){ ///Visar stats för vapnet
         Console.WriteLine("     Damage Die: "+DmgDie);
         Console.WriteLine("     Damage Modifier: "+DmgMod);
         Console.WriteLine("     Price: "+Price);
